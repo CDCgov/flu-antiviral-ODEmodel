@@ -20,6 +20,11 @@ zzz*.xlsx
 
 # Model output files
 out/
+figs/
+
+# Keep output folders
+!out/.gitkeep
+!figs/.gitkeep
 
 # Output files from R CMD build
 /*.tar.gz
