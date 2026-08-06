@@ -19,8 +19,8 @@ zzz*.RData
 zzz*.xlsx
 
 # Model output files
-out/
-figs/
+out/*
+figs/*
 
 # Keep output folders
 !out/.gitkeep
