@@ -1,12 +1,12 @@
 ## Overview
 
-*As a first step, this document is under governance review. When the review completes as appropriate per local and agency processes, the project team will be allowed to remove this notice. This material is draft.*
-
 This repository contains code required to reproduce results from the following manuscript:
 
 SE Morris, SG Dean, LYH Chan, S Garg, TM Uyeki, RK Borchering, M Biggerstaff, AM Mellis. *Antivirals for seasonal influenza in the US: modeling direct and indirect effects with variable uptake*.
 
-The findings and conclusions of this report are those of the authors and do not necessarily represent the official views of the Centers for Disease Control and Prevention.
+This work is currently under peer review.
+
+The findings and conclusions of this work are those of the authors and do not necessarily represent the official views of the Centers for Disease Control and Prevention.
 
 
 ### Quick-start guide
@@ -19,7 +19,7 @@ The extended analysis can be run with `3_run_model_spectrum.R`.
 
 Results are processed in `4_process_output.R` and `4_process_tables.R`.
 
-Scripts containing helper functions, parameter inputs, and calibration data (`0_functions.R`, `0_params.R`, `0_contact_matrix.R`, and `0_calibration_data.R`) are called within the above files. 
+Scripts containing helper functions, parameter inputs, and calibration data (`0_functions.R`, `0_params.R`, `0_contact_matrix.R`, and `0_calibration_data.R`) are called or referenced within the above files. 
 
 Simulation outputs are stored in `out/`, figures are stored in `figs/` and tables are stored in `tables/`.  
   

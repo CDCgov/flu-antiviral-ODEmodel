@@ -13,6 +13,16 @@ N <- sum(N_byage)
 m <- length(N_byage)
 
 
+## Contact matrix ----------
+
+# see '0_contact_matrix.R' for source code
+load(here(filepath, "inputs/contact_matrix.RData"))
+
+# correct for reciprocity (cijNi = cjiNj) 
+totalC       <- contact_mat * N_byage                    
+contact_mat  <- (totalC + t(totalC)) / (2 * N_byage) 
+
+
 ## Natural history parameters -------------
 
 asym_adj <- 0.6 
@@ -35,6 +45,12 @@ hosp_risk <- 1/c(143.44, 364.71, 178.16, 94.3, 11)
 
 vc <- c(0.57, 0.48, 0.31, 0.42, 0.63)  # 24/25 percentages
 ve <- c(0.50, 0.45, 0.40, 0.45, 0.40)  # calibrated 
+
+# Translate reported VC among 6m-4yrs to VC among 0-4yrs
+N0 <- 3615598    # 0-6m population
+
+vc_6m4y <- vc[1] * (N_byage[1] - N0)        # total children 6m-4y vaccinated
+vc[1]   <- round(vc_6m4y / N_byage[1], 2)   # coverage among all children 0-4y
 
 
 ## Simulated parameters: Care seeking, prescribing, treatment adherence -------

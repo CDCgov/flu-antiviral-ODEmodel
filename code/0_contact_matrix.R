@@ -1,6 +1,11 @@
 ## Create contact matrix using EpiStorm-Mix
 ## Code modified from: https://github.com/epistorm/Epistorm-Mix/
-## Accessed 23 Dec 2025
+## Accessed 7 Sep 2026
+
+xfun::pkg_attach(c("tidyverse",  "here"))
+
+filepath <- ""
+
 
 ## Load & merge data -------------
 
@@ -65,4 +70,6 @@ contact_mat <- age_matrix %>%
                 pivot_wider(names_from = "cont_agegrp", values_from = "ncont") %>%
                 select(-resp_agegrp)
 
-                     
+
+# save                  
+save(contact_mat, file = here(filepath, "inputs/contact_matrix.RData"))

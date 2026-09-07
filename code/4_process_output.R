@@ -1,6 +1,6 @@
 ## Set up ---------
 
-xfun::pkg_attach(c("patchwork", "ggrepel", "scico", "RColorBrewer", "here", "tidyverse", "janitor", "lhs"))
+xfun::pkg_attach(c("patchwork", "ggrepel", "scico", "RColorBrewer", "here", "tidyverse", "janitor", "lhs", "gtools"))
 
 filepath <- ""
 
@@ -8,7 +8,6 @@ nsim <- 100
 
 # load functions and data for calibration plots
 source(here(filepath, 'code/0_functions.R'))
-source(here(filepath, 'code/0_contact_matrix.R'))
 source(here(filepath, 'code/0_params.R'))
 source(here(filepath, 'code/0_calibration_data.R'))
 
@@ -29,7 +28,7 @@ scenario_short <- unique(str_split_i(epi_scenarios, pattern = "_", i = 3))
 scenario_labels <- c("Baseline", "No transmission impact", "Small transmission impact", "Large transmission impact")
 
 
-## Process output files ------------------
+# Process output files ------------------
 
 # main scenario analysis (from 1_run_model_original.R)
 load(here(filepath, paste0("out/original_100.RData")) )
@@ -51,7 +50,7 @@ out_all_sens <- combine_out(out_sens) %>%
 load(here(filepath, paste0("out/spectrum_0.025.RData")))
 
 
-## Plot contact matrix input --------
+# Plot contact matrix input --------
 
 contact_mat %>% mutate(.row = colnames(.)) %>%
   pivot_longer(-.row, names_to = ".col", values_to = "val") %>%
@@ -66,8 +65,8 @@ contact_mat %>% mutate(.row = colnames(.)) %>%
   scale_x_discrete(labels = age_labels_nice) + scale_y_discrete(labels = age_labels_nice) +
   labs(x = "Respondent age group", y = "Contact age group")
 
-# use cairo to save plot with special character '≥'
-ggsave(file = here(figpath, "input_contacts.pdf"), device = cairo_pdf, width = 8, height = 6) 
+# save_pdf function to save plot with special character '≥' (see 0_functions.R)
+save_pdf(here(figpath, "input_contacts.pdf"), width = 8, height = 6) 
 
 
 # Calibration plot: incidence of symptomatic illnesses --------------
@@ -196,7 +195,7 @@ hosp_summary %>% filter(scenario %in% c("bigtrans")) %>%
 ggsave(file = here(figpath, "calibration_hosp_large.pdf"), width = 10, height = 6)
 
 
-## Calibration plot: age distributions -----------
+# Calibration plot: age distributions -----------
 
 tmp <- out %>% 
   select(sim, scenario, time, contains("count_I"), matches("H[0-9]")) %>% 
@@ -247,11 +246,11 @@ p_age <-
   get_theme(txt = 11, axis.text.x = element_text(angle = 90)) +
   scale_colour_manual(values = c(`TRUE` = "black", `FALSE` = NULL), na.value  = NA, guide = "none")
 
-# use cairo to save plot with special character '≥'
-ggsave(p_age, file = here(figpath, "calibration_age.pdf"), device = cairo_pdf, width = 8, height = 6)
+# save_pdf function to save plot with special character '≥' (see 0_functions.R)
+save_pdf(p_age, file = here(figpath, "calibration_age.pdf"), width = 8, height = 6)
 
 
-## Plot hospitalizations prevented (all ages) ------------------------
+# Plot hospitalizations prevented (all ages) ------------------------
 
 tmp_H <- out_all %>% 
   filter(time == max(time)) %>%
@@ -319,7 +318,7 @@ prevented_H %>% select(severity, scenario_names, contains("totalabs")) %>%
   arrange(scenario_names)
 
 
-## Plot extended analyses: spectrum of av effect & % undergoing prompt tx  ------------------
+# Plot extended analyses: spectrum of av effect & % undergoing prompt tx  ------------------
 
 # For visualization purposes, plot p_av marker at mean of previously sampled ranges
 if(!exists("pars_fixed")) {
@@ -421,8 +420,7 @@ p_trans_hosp / p_trans_pav + plot_annotation(tag_levels = 'A')
 ggsave(file = here(figpath, "spectrum_both.png"), width = 8.5, height = 8.5, dpi = 800)
 
 
-
-## Increasing each component of p_av --------------------------
+# Increasing each component of p_av --------------------------
 
 # get parameters comprising the % people completing prompt Tx
 pars <- c("pars_fixed$p_seekcare * (pars_fixed$p_d1 + pars_fixed$p_d2)", "pars_fixed$p_prescribed", "pars_fixed$p_adherence")
@@ -474,7 +472,7 @@ dat_plt %>% distinct(tx3, severity, av_trans)
 cols_params <-  scico(7, palette = 'lapaz')[c(3, 4, 6)]
 
 
-## Function to plot different numbers of sequential increases
+# Function to plot different numbers of sequential increases
 
 create_barplot <- function(dat){
   tmp <- dat %>% 
@@ -509,7 +507,7 @@ create_barplot <- function(dat){
 }
 
 
-## Actual plotting
+# Actual plotting
 
 # Add lines to show where you started 
 start_pts <- prevented_H %>% filter(scenario != "baseline") %>%
@@ -552,7 +550,7 @@ dat_plt %>% pivot_longer(cols = c(par1:par3, prevented1:prevented3),
   filter(order == 3) %>% distinct(prevented, av_trans, severity)
 
 
-## Plot number undergoing prompt treatment (spectrum) ------------------
+# Plot number undergoing prompt treatment (spectrum) ------------------
 
 # comparison contour lines
 comp_lines_tx <- c(1e6, 1e7, 2e7, 3e7)
@@ -582,7 +580,7 @@ tmp_pav_trans %>% mutate(tx = count_Ia1_all + count_Ia2_all) %>%
   filter(p_av == 1, av_trans %in% c(0, 1))
 
   
-## Plot sensitivity analyses (scenario & extended): hosp risk reduction = 10% --------------
+# Plot sensitivity analyses (scenario & extended): hosp risk reduction = 10% --------------
 
 tmp_H_sens <- out_all_sens %>% 
   filter(time == max(time)) %>%
@@ -659,10 +657,6 @@ p_sens_spec <- tmp_sens_plt %>%
   labs(x = "Symptomatic individuals undergoing prompt treatment (%)", y = "Reduction in transmission risk (%)")
 ggsave(p_sens_spec, file = here(figpath, "prevented_h_sens_spec.pdf"), width = 10, height = 5)
 
-
-# % prevented
-sens_H %>% select(severity, scenario_names, contains("totalperc_mean")) %>% 
-  arrange(scenario_names)
 
 # quoted numbers - both 100%
 tmp_sens_plt %>% filter(av_trans == 0, p_av == 1)

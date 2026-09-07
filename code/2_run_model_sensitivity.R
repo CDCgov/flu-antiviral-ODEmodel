@@ -15,7 +15,6 @@ nsim <- 100
 nstage <- 1
 
 source(here(filepath, 'code/0_functions.R'))
-source(here(filepath, 'code/0_contact_matrix.R'))
 source(here(filepath, 'code/0_params.R'))
 
 # scenario information
@@ -45,13 +44,11 @@ for (e in 1:length(epi_scenarios)) {
   # adjust symptomatic proportions for vaccination
   p_sym_corr  <- p_sym * (1 - vc * ve)
   
-  # approximate beta (fixed at baseline value, so redundant sometimes)
+  # approximate beta (fixed at baseline value without antivirals, so redundant sometimes)
   beta_vals <- calculate_beta(Reff = Reff, 
                               contacts = contact_mat,
                               p_immune = prop_immune,
                               asym_adj = asym_adj,
-                              p_a1 = rep(0, m), # no-one gets antivirals
-                              p_a2 = rep(0, m), 
                               av_trans_adj = 1) # no difference in transmission
   
   # adjust beta for ODE input

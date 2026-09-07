@@ -175,7 +175,7 @@ tx_tab <-
 tx_tab %>%
   kable(format = "latex", 
                align = "l|cc",
-               caption = "\\textbf{Number of people undergoing prompt treatment.} In these scenarios antiviral effectiveness against hospitalization is fixed at 20\\%.", 
+               caption = "\\textbf{Number of people undergoing prompt influenza antiviral treatment.} In these scenarios antiviral effectiveness against hospitalization is fixed at 20\\%.", 
                booktabs = TRUE) %>%
   row_spec(0:nrow(tx_tab), extra_latex_after = "\\addlinespace[3pt]")
 
