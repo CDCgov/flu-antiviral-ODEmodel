@@ -105,7 +105,7 @@ p_timing <-
   scale_color_manual("Season\nseverity", values = cols_severity[c(1, 3)]) +
   labs(x = "Month", y = "New symptomatic illnesses")
 
-ggsave(p_timing, file = here(figpath, "calibration_curve.pdf"), device = cairo_pdf, width = 10, height = 6)
+ggsave(p_timing, file = here(figpath, "calibration_curve.pdf"), width = 10, height = 6)
 
 
 # Calibration plot: total symptomatic illnesses ----------------
@@ -420,7 +420,7 @@ p_trans_hosp / p_trans_pav + plot_annotation(tag_levels = 'A')
 ggsave(file = here(figpath, "spectrum_both.png"), width = 8.5, height = 8.5, dpi = 800)
 
 
-# Increasing each component of p_av --------------------------
+# Increasing each component of the % undergoing prompt tx --------------------------
 
 # get parameters comprising the % people completing prompt Tx
 pars <- c("pars_fixed$p_seekcare * (pars_fixed$p_d1 + pars_fixed$p_d2)", "pars_fixed$p_prescribed", "pars_fixed$p_adherence")
