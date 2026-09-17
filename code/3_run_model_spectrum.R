@@ -1,6 +1,6 @@
 ## Extended analysis of antiviral effectiveness and proportion undergoing prompt Tx ----
 
-xfun::pkg_attach(c("deSolve", "tidyverse", "lubridate", "here", "janitor", "readxl", "lhs", "sensitivity"))
+xfun::pkg_attach(c("deSolve", "tidyverse", "here", "lhs"))
 
 filepath <- ""
 nsim <- 100    # dummy var so 'code/0_params.R' runs

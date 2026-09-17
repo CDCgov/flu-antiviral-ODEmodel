@@ -94,9 +94,7 @@ combine_out <- function(dat){
 }
 
 
-
 # Model equations (one infectious sub-stage per day)  --------------------
-
 
 flu.model.1stage <- function(t, state, parameters){
   with(as.list(c(state, parameters)),{

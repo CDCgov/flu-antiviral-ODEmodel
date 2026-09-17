@@ -4,27 +4,28 @@ This repository contains code required to reproduce results from the following m
 
 SE Morris, SG Dean, LYH Chan, S Garg, TM Uyeki, RK Borchering, M Biggerstaff, AM Mellis. *Antivirals for seasonal influenza in the US: modeling direct and indirect effects with variable uptake*.
 
-This work is currently under peer review.
+The manuscript is currently under peer review and the associated preprint is available on [medRxiv](https://www.medrxiv.org/content/10.64898/2026.09.10.26362674v1).
 
 The findings and conclusions of this work are those of the authors and do not necessarily represent the official views of the Centers for Disease Control and Prevention.
 
 
+
 ### Quick-start guide
 
-To perform the original scenario analysis, run `1_run_model_original.R`. 
+The best place to start is to run the original scenario analysis with the script `1_run_model_original.R`. 
 
-The associated sensitivity analyses can be run with `2_run_model_sensitivity.R`.
+The associated sensitivity analyses can be run with `2_run_model_sensitivity.R`, and the extended analyses can be run with `3_run_model_spectrum.R`. 
 
-The extended analysis can be run with `3_run_model_spectrum.R`. 
-
-Results are processed in `4_process_output.R` and `4_process_tables.R`.
+Simulation outputs from the above scripts are stored as `.RData` files in `out/`. After the outputs have been generated, results can be processed using `4_process_output.R` and `4_process_tables.R`. These scripts create all the final outputs presented in the paper (figures are stored in `figs/` and tables are stored in `tables/`).
 
 Scripts containing helper functions, parameter inputs, and calibration data (`0_functions.R`, `0_params.R`, `0_contact_matrix.R`, and `0_calibration_data.R`) are called or referenced within the above files. 
-
-Simulation outputs are stored in `out/`, figures are stored in `figs/` and tables are stored in `tables/`.  
   
   
 ### Additional information
+
+This code was generated in R 4.2.2 on a standard computer running Mac OS 15.7.3 with 24GB RAM. The code is organized as a standalone project, although the user must have installed R, in addition to core R packages including `deSolve` and `lhs`.
+
+Runtime for most scripts should be less than a few minutes. The extended analyses will take longer (e.g., ~15 minutes).
 
 Questions can be directed to Sinead Morris (run7@cdc.gov).
 

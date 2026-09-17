@@ -1,4 +1,4 @@
-xfun::pkg_attach(c("tidyverse", "gt", "here", "webshot2", "knitr", "kableExtra"))
+xfun::pkg_attach(c("tidyverse", "gt", "here", "knitr", "kableExtra"))
 
 tabpath <- "tables"
 filepath <- ""

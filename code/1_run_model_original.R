@@ -1,6 +1,6 @@
 ## Set up ------------
 
-xfun::pkg_attach(c("deSolve", "tidyverse", "lubridate", "here", "janitor", "readxl", "lhs", "sensitivity"))
+xfun::pkg_attach(c("deSolve", "tidyverse", "here", "lhs"))
 
 filepath <- ""
 

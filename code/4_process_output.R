@@ -1,6 +1,6 @@
 ## Set up ---------
 
-xfun::pkg_attach(c("patchwork", "ggrepel", "scico", "RColorBrewer", "here", "tidyverse", "janitor", "lhs", "gtools"))
+xfun::pkg_attach(c("patchwork", "scico", "RColorBrewer", "ggrepel", "here", "tidyverse", "janitor", "lhs", "gtools"))
 
 filepath <- ""
 
