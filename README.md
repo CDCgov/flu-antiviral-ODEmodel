@@ -14,9 +14,11 @@ The findings and conclusions of this work are those of the authors and do not ne
 
 The best place to start is to run the original scenario analysis with the script `1_run_model_original.R`. 
 
-The associated sensitivity analyses can be run with `2_run_model_sensitivity.R`, and the extended analyses can be run with `3_run_model_spectrum.R`. 
+The associated sensitivity analyses (with reduced antiviral effectiveness against hospitalization) can be run with `2_run_model_sensitivity.R`, and the extended analyses can be run with `3_run_model_spectrum.R`. 
 
 Simulation outputs from the above scripts are stored as `.RData` files in `out/`. After the outputs have been generated, results can be processed using `4_process_output.R` and `4_process_tables.R`. These scripts create all the final outputs presented in the paper (figures are stored in `figs/` and tables are stored in `tables/`).
+
+Additional one-way sensitivity analyses of select natural history parameters can be run with `5_sensitivity_oneway.R`.
 
 Scripts containing helper functions, parameter inputs, and calibration data (`0_functions.R`, `0_params.R`, `0_contact_matrix.R`, and `0_calibration_data.R`) are called or referenced within the above files. 
   

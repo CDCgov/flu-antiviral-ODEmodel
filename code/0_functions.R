@@ -23,6 +23,24 @@ rename_scenarios <- function(scenario, scenario_short, scenario_labels){
 }
 
 
+## Function to rename parameters for plotting ----------
+
+rename_pars <- function(parnames){
+  parnames[parnames == "Re"] <- "Effective reproduction number"
+  parnames[parnames == "hosp_risk"]  <- "Risk of hospitalization"
+  parnames[parnames == "p_asym"] <- "Proportion asymptomatic"
+  parnames[parnames == "asym_adj"] <- "Asymptomatic relative transmission"
+  parnames[parnames == "prop_immune"] <- "Proportion immune"
+  
+  return(factor(parnames, 
+                levels = c("Effective reproduction number", 
+                           "Risk of hospitalization", 
+                           "Proportion immune",
+                           "Proportion asymptomatic",
+                           "Asymptomatic relative transmission")))
+}
+
+
 ## Summarize output --------
 
 get_summary <- function(dat, cols) {
