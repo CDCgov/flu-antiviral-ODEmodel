@@ -15,10 +15,104 @@ scenario_labels <- c("Baseline", "No transmission impact", "Small transmission i
 age_labels <- c("0-4 yrs", "5-17 yrs", "18-49 yrs", "50-64 yrs", "65+ yrs")
 
 
-# Output cleaning ------
-
 # load results from main scenario analysis (1_run_model_original.R)
 load(here(filepath, paste0("out/original_100.RData")) )
+
+
+## Prevented hospitalizations as table with uncertainty -------
+
+out_all <- combine_out(out) %>% 
+  select(time, scenario, sim, contains("all")) %>% 
+  separate(scenario, c("X", "severity", "scenario"), sep = "_") %>%
+  mutate(scenario_names = rename_scenarios(scenario, scenario_short, scenario_labels))
+
+res_tab <- out_all %>% filter(time == max(time)) %>%
+  select(sim, severity, scenario, H_all) %>% spread(scenario, H_all) %>%
+  # calc absolute difference and percentage difference  
+  mutate(across(.cols = contains("trans"), 
+                .fns = list(directperc   = function(x) (baseline - notrans)/baseline * 100,
+                            indirectperc = function(x) (notrans - x)/baseline * 100,
+                            totalperc    = function(x) (baseline - x)/baseline * 100,
+                            
+                            directabs   = function(x) baseline - notrans,
+                            indirectabs = function(x) notrans - x,
+                            totalabs    = function(x) baseline - x),
+                .names = "{.col}_{.fn}")) %>%
+  # rename the original columns to follow the same pattern as _abs/_perc
+  rename_with(~ paste0(.x, "_orig"), .cols = all_of(scenario_short[scenario_short != "baseline"])) %>% 
+  # then gather
+  pivot_longer(cols = contains("trans"), names_to   = c("scenario", ".value"), names_sep  = "_") %>%
+  # then summarize
+  group_by(severity, scenario) %>%
+  get_summary(contains(c("orig", "direct", "indirect", "total"))) %>%
+  mutate(scenario_names = rename_scenarios(scenario, scenario_short, scenario_labels),
+         severity = paste(str_to_title(severity))) %>%
+  # adjust formatting
+  mutate(across(contains(c("mean", "lcl", "ucl")), ~ if (str_detect(cur_column(), "perc")) {
+          format(round(.x, 1), nsmall = 1) # 1 decimal place for percentages
+        } else {
+          prettyNum(signif(.x, 3), big.mark = ",") # 3 sig figs + commas for absolute
+        })) %>%
+  mutate(across(ends_with("_mean"), 
+          ~ paste0( .x, 
+            " (", get(paste0(sub("_mean$", "", cur_column()), "_lcl")), "--", get(paste0(sub("_mean$", "", cur_column()), "_ucl")),  ")"),
+      .names = "{sub('_mean$', '', .col)}" ) ) %>%
+  select(-contains(c("orig", "lcl", "mean", "ucl")), -scenario) %>%
+  gather(var, val, contains(c("abs", "perc"))) %>%
+  spread(scenario_names, val) %>%
+  mutate(var = c(directperc   = "Direct (percent)",
+                 directabs    = "Direct (absolute)",
+                 indirectperc = "Indirect (percent)",
+                 indirectabs  = "Indirect (absolute)",
+                 totalperc    = "Total (percent)",
+                 totalabs     = "Total (absolute)")[var] ) %>% 
+  rename(`Season severity` = severity, Effects = var) 
+
+res_tab %>%
+  kable(format = "latex", 
+        align = "l| l | c |c |c ",
+        caption = "\\textbf{Absolute number and percent of influenza-associated hospitalizations prevented in the original antiviral effectiveness scenarios relative to the baseline scenario without antivirals.} In these scenarios antiviral effectiveness against hospitalization is fixed at 20\\%.", 
+        booktabs = TRUE,
+    linesep = c("", "\\addlinespace", "", "\\addlinespace", "", "\\addlinespace\\midrule" ))
+
+
+## Total undergoing prompt treatment ---------
+
+out_all <- combine_out(out) %>% 
+  select(time, scenario, sim, contains("all")) %>% 
+  separate(scenario, c("X", "severity", "scenario"), sep = "_") %>%
+  mutate(scenario_names = rename_scenarios(scenario, scenario_short, scenario_labels))
+
+
+tx_tab <- 
+  out_all %>%
+  filter(time == max(time), scenario != "baseline") %>% 
+  select(time, severity, scenario, sim, count_Ia1_all, count_Ia2_all) %>%
+  mutate(tx = count_Ia1_all + count_Ia2_all) %>%
+  group_by(severity, scenario) %>%
+  summarize(mean = mean(tx), 
+            lcl = quantile(tx, 0.025),
+            ucl = quantile(tx, 0.975)) %>%
+  ungroup() %>%
+  mutate(scenario_names = rename_scenarios(scenario, scenario_short, scenario_labels),
+         severity = paste(str_to_title(severity), "severity season")) %>%
+  mutate(across(c(mean, lcl, ucl), function(x) prettyNum(signif(x, 3), big.mark = ","))) %>% 
+  mutate(estimate = paste0(mean, " (", lcl, "--", ucl, ")")) %>%
+  select(`Antiviral effectiveness scenario` = scenario_names, severity, estimate) %>%
+  spread(severity, estimate) %>%
+  arrange(`Antiviral effectiveness scenario`) 
+
+tx_tab %>%
+  kable(format = "latex", 
+               align = "l|cc",
+               caption = "\\textbf{Number of people undergoing prompt influenza antiviral treatment.} In these scenarios antiviral effectiveness against hospitalization is fixed at 20\\%.", 
+               booktabs = TRUE) %>%
+  row_spec(0:nrow(tx_tab), extra_latex_after = "\\addlinespace[3pt]")
+
+
+## Total effects by age group ----------
+
+# Output cleaning
 
 tmp_ar <- out %>% 
   filter(time == max(time)) %>%
@@ -39,8 +133,6 @@ df0 <- tmp_ar %>% spread(scenario, val) %>%
 
 df <- df0 %>% select(sim, severity, agegrp, baseline, contains("total"), -baseline_total)
 
-
-## Total effects by age group ----------
 
 # Compute percentages within each simulation, then average ---
 df_pct <- df %>%
@@ -144,39 +236,3 @@ tab_age %>%
   gsub("(\\{\\\\bfseries Total\\})", "\\\\midrule\n\\1", .) %>%
   
   writeLines(here(tabpath, "prevented_hospitalizations.tex"))
-
-
-## Total undergoing prompt treatment ---------
-
-out_all <- combine_out(out) %>% 
-  select(time, scenario, sim, contains("all")) %>% 
-  separate(scenario, c("X", "severity", "scenario"), sep = "_") %>%
-  mutate(scenario_names = rename_scenarios(scenario, scenario_short, scenario_labels))
-
-
-tx_tab <- 
-  out_all %>%
-  filter(time == max(time), scenario != "baseline") %>% 
-  select(time, severity, scenario, sim, count_Ia1_all, count_Ia2_all) %>%
-  mutate(tx = count_Ia1_all + count_Ia2_all) %>%
-  group_by(severity, scenario) %>%
-  summarize(mean = mean(tx), 
-            lcl = quantile(tx, 0.025),
-            ucl = quantile(tx, 0.975)) %>%
-  ungroup() %>%
-  mutate(scenario_names = rename_scenarios(scenario, scenario_short, scenario_labels),
-         severity = paste(str_to_title(severity), "severity season")) %>%
-  mutate(across(c(mean, lcl, ucl), function(x) prettyNum(signif(x, 3), big.mark = ","))) %>% 
-  mutate(estimate = paste0(mean, " (", lcl, "--", ucl, ")")) %>%
-  select(`Antiviral effectiveness scenario` = scenario_names, severity, estimate) %>%
-  spread(severity, estimate) %>%
-  arrange(`Antiviral effectiveness scenario`) 
-
-tx_tab %>%
-  kable(format = "latex", 
-               align = "l|cc",
-               caption = "\\textbf{Number of people undergoing prompt influenza antiviral treatment.} In these scenarios antiviral effectiveness against hospitalization is fixed at 20\\%.", 
-               booktabs = TRUE) %>%
-  row_spec(0:nrow(tx_tab), extra_latex_after = "\\addlinespace[3pt]")
-
-
